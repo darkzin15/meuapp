@@ -23,4 +23,3 @@ jobs:
         with:
           name: guilherme-player-apk
           path: bin/*.apk
-          
