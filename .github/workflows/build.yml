@@ -3,23 +3,29 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev cmake libffi-dev libssl-dev
-          pip install --upgrade buildozer cython==0.29.36
-      - name: Build
-        run: buildozer -v android debug
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: guilherme-player-apk
-          path: bin/*.apk
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+        pip install --upgrade Cython==0.29.36 buildozer
+    - name: Accept Android Licenses
+      run: |
+        mkdir -p ~/.buildozer/android/platform
+        yes | ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        echo "y" | buildozer android update || true
+    - name: Build APK
+      run: |
+        yes | buildozer -v android debug
+    - uses: actions/upload-artifact@v4
+      with:
+        name: meu-apk
+        path: bin/*.apk
